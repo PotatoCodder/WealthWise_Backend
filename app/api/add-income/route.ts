@@ -1,3 +1,4 @@
+// app/api/add-income/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { firestore } from '@/lib/firebaseAdmin';
 
@@ -7,15 +8,12 @@ export async function POST(req: NextRequest) {
     const { title, amount, notes, date, category, account, userId } = body;
 
     if (!title || !amount || !date || !category || !account || !userId) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const createdAt = new Date().toISOString();
 
-    const newDoc = await firestore.collection('expenses').add({
+    const docRef = await firestore.collection('incomes').add({
       title,
       amount,
       notes,
@@ -26,15 +24,9 @@ export async function POST(req: NextRequest) {
       createdAt,
     });
 
-    return NextResponse.json({
-      message: 'Expense added successfully',
-      id: newDoc.id,
-    });
+    return NextResponse.json({ message: 'Income added successfully', id: docRef.id });
   } catch (err) {
-    console.error('🔥 POST /add-expense error:', err);
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
+    console.error('🔥 Income Error:', err);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
