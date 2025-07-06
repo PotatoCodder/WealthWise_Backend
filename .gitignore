@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/app/firebase-key/wealthwise.json
+
 /.pnp
 .pnp.*
 .yarn/*
