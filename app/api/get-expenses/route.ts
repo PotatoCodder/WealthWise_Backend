@@ -7,9 +7,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
-    console.log('🔍 GET /api/get-expenses called');
-    console.log('➡️ userId:', userId);
-
     if (!userId) {
       return NextResponse.json(
         { error: 'Missing userId' },
@@ -32,7 +29,6 @@ export async function GET(req: NextRequest) {
 
     const expenses = expensesQuery.docs.map((doc) => {
       const data = doc.data();
-      console.log('📄 Found expense:', data);
       return {
         id: doc.id,
         ...data,
