@@ -1,7 +1,6 @@
-// app/api/add-income/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+// existing imports...
 import { firestore } from '@/lib/firebaseAdmin';
-
+import { NextResponse, NextRequest } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -20,6 +19,14 @@ export async function POST(req: NextRequest) {
       date,
       category,
       account,
+      userId,
+      createdAt,
+    });
+
+    // 👇 Add to balance collection
+    await firestore.collection('balance').add({
+      amount,
+      type: account,
       userId,
       createdAt,
     });

@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { message: 'No expenses found', expenses: [] },
         { status: 200 }
-      );
+      );  
     }
 
     const expenses = expensesQuery.docs.map((doc) => {

@@ -26,6 +26,16 @@ export async function POST(req: NextRequest) {
       createdAt,
     });
 
+    // ✅ Only add to balance if category is Savings
+    if (category.toLowerCase() === 'savings') {
+      await firestore.collection('balance').add({
+        amount,
+        type: account,
+        userId,
+        createdAt,
+      });
+    }
+
     return NextResponse.json({
       message: 'Expense added successfully',
       id: newDoc.id,
