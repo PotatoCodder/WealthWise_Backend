@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "app/api/get-expenses-by-category"  ],
   "exclude": ["node_modules"]
 }
