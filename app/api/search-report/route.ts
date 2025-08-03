@@ -2,6 +2,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { firestore } from '@/lib/firebaseAdmin';
 
+type ReportEntry = {
+  id: string;
+  date: string;
+  category?: string;
+  userId: string;
+  [key: string]: any; // to handle any additional fields
+};
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -24,9 +32,12 @@ export async function GET(req: NextRequest) {
 
     const snapshot = await query.get();
 
-    const filtered = snapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(item => item.date.includes(date));
+    const filtered: ReportEntry[] = snapshot.docs
+      .map(doc => {
+        const data = doc.data() as ReportEntry;
+        return { id: doc.id, ...data };
+      })
+      .filter(item => item.date?.includes(date));
 
     return NextResponse.json({ entries: filtered });
   } catch (err) {
