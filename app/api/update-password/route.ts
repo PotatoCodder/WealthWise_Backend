@@ -1,30 +1,47 @@
+// 🔍 app/api/search-report/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { firestore } from '@/lib/firebaseAdmin';
 
-export async function POST(req: NextRequest) {
+type ReportEntry = {
+  id: string;
+  date: string;
+  category?: string;
+  userId: string;
+  [key: string]: any; // to handle any additional fields
+};
+
+export async function GET(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    const category = searchParams.get('category') || '';
+    const date = searchParams.get('date') || '';
+    const type = searchParams.get('type') || 'Income';
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Missing email or password' }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
-    const userQuery = await firestore
-      .collection('users')
-      .where('email', '==', email)
-      .get();
+    const collection = type.toLowerCase() === 'expense' ? 'expenses' : 'incomes';
 
-    if (userQuery.empty) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    let query = firestore.collection(collection).where('userId', '==', userId);
+
+    if (category) {
+      query = query.where('category', '==', category);
     }
 
-    const docRef = userQuery.docs[0].ref;
+    const snapshot = await query.get();
 
-    await docRef.update({ password });
+    const filtered: ReportEntry[] = snapshot.docs
+      .map(doc => {
+        const data = doc.data() as ReportEntry;
+        return { id: doc.id, ...data };
+      })
+      .filter(item => item.date?.includes(date));
 
-    return NextResponse.json({ message: 'Password updated successfully' });
+    return NextResponse.json({ entries: filtered });
   } catch (err) {
-    console.error('🔥 Password update failed:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }5
+    console.error('🔥 Error in search-report:', err);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
 }
